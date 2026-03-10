@@ -78,3 +78,46 @@ Verified on 2026-03-11 with a local `mcap` bag containing this topic:
 - Output directory: `./ros2/output/camera4_png_test`
 - Saved images: `2392`
 - First image size: `2880 x 1860`
+
+## `loger_depth_to_rosbag.py`
+
+This script reads an image topic from a ROS 2 bag, runs LoGeR on the extracted frames, and writes resized depth maps back into a new ROS 2 bag as `sensor_msgs/msg/Image` with `32FC1` encoding.
+
+### What It Preserves
+
+- Original bag message timestamp for each source image message
+- Original `header.stamp`
+- Original `header.frame_id`
+
+### Output Format
+
+- ROS message type: `sensor_msgs/msg/Image`
+- Encoding: `32FC1`
+- Resolution: LoGeR inference resolution after resizing
+
+### Usage
+
+```bash
+python3 ros2/loger_depth_to_rosbag.py \
+  <input_bag> \
+  <image_topic> \
+  -o <output_bag>
+```
+
+### Example
+
+```bash
+python3 ros2/loger_depth_to_rosbag.py \
+  ./data/sample_bag \
+  /sensing/camera/camera4/image_raw/compressed \
+  -o ./ros2/output/sample_bag_with_depth
+```
+
+### Notes
+
+- The input topic may be `sensor_msgs/msg/CompressedImage` or `sensor_msgs/msg/Image`
+- The output bag is written as a new bag; the original bag is left unchanged
+- The default depth topic is derived from the image topic, for example:
+  - `/sensing/camera/camera4/image_raw/compressed`
+  - `/sensing/camera/camera4/image_raw/loger_depth`
+- LoGeR model weights are required to run inference
